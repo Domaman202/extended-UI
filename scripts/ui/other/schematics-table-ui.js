@@ -173,7 +173,7 @@ function buildTable() {
     const categoryButtonsTable = wrapped.table().get();
     for (let i = 0; i < columns; i++) {
         const index = i;
-        imageButton = categoryButtonsTable.button(getCategoryImage(index), Styles.clearToggleTransi, ()=>{
+        imageButton = categoryButtonsTable.button(getCategoryImage(index), Styles.clearTogglei, ()=>{
             currentCategory = index;
         }).update(b => {
             b.setChecked(currentCategory == index);
