@@ -15,7 +15,7 @@ Events.run(Trigger.update, () => {
         if (!timer.canInteract()) return;
 
         const block = b.tile.block();
-        if (!block.consumes.has(ConsumeType.item)) return;
+        if (!block.consumers.find(c => c instanceof ConsumeItems || c instanceof ConsumeItemFilter || c instanceof ConsumeItemDynamic)) return;
 
         if (b.acceptStack(stack.item, stack.amount, player.unit()) >= 5) {
             Call.transferInventory(player, b);
@@ -37,6 +37,9 @@ Events.run(Trigger.update, () => {
 
     if (stack.amount) {
         Call.transferInventory(player, core);
+        if (stack.amount > 0) {
+            Call.dropItem(0);
+        }
     } else {
         Call.requestItem(player, core, request, 999);
     }
@@ -64,7 +67,7 @@ function getUnitFactoryRequest(build, block, core) {
 }
 
 function getItemRequest(build, block, core) {
-    const consumesItems = block.consumes.get(ConsumeType.item);
+    const consumesItems = block.consumers.find(c => c instanceof ConsumeItems || c instanceof ConsumeItemFilter || c instanceof ConsumeItemDynamic);
     if (!consumesItems) return null;
 
     if (consumesItems instanceof ConsumeItemFilter) {
@@ -77,33 +80,18 @@ function getItemRequest(build, block, core) {
 }
 
 function getFilterRequest(filter, build, core) {
-    const items = Vars.content.items();
-    const bits = new Bits;
-    let bitIndex = 0;
-    let item
-
-    filter.applyItemFilter(bits);
-    do {
-        bitIndex = bits.nextSetBit(bitIndex);
-
-        if (bitIndex == -1) break;
-        // ignore blast compound; it will explode generators
-        if (bitIndex == 14) {
-            bitIndex++;
-            continue;
-        } 
-
-        item = items.get(bitIndex)
-        if (core.items.get(item) >= 20) {
-            if (build.acceptStack(item, 20, Vars.player.unit()) >= 5) {
-                return item;
+    let request = null;
+    let stop = false;
+    Vars.content.items().each(item => {
+        if (filter.filter.get(item) && item != Items.blastCompound && core.items.get(item) >= 20) {
+            if (build.acceptStack(item, 20, Vars.player.unit()) >= 5 && request == null && !stop) {
+                request = item;
             } else {
-                return null;
+                stop = true;
             }
         }
-        bitIndex++;
-    } while (bitIndex > 0);
-    return null;
+    });
+    return request;
 }
 
 function findRequiredItem(stacks, build, core) {

@@ -1,7 +1,8 @@
 Events.on(EventType.ClientLoadEvent, () => {
-    const settings = Vars.ui.settings.graphics;
-    settings.row();
-    settings.button(Core.bundle.get("eui.name"), Styles.defaultt, () => extendedUIDialogSettings.show()).width(240).height(50);
+    Vars.ui.settings.addCategory("@eui.name", t => {
+        t.row();
+        t.button(Core.bundle.get("eui.name"), Styles.defaultt, () => extendedUIDialogSettings.show()).width(240).height(50);
+    })
     
     const extendedUIDialogSettings = new BaseDialog(Core.bundle.get("eui.settings"));
     extendedUIDialogSettings.addCloseButton();
@@ -46,4 +47,5 @@ Events.on(EventType.ClientLoadEvent, () => {
 
         return contentTable;
     })());
+    global.eui.settings = extendedUIDialogSettings;
 });

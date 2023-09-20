@@ -1,18 +1,14 @@
 const iconsUtil = require("extended-ui/utils/icons");
 const coreUnits = require("extended-ui/units/core-units");
 const blacklist = require("extended-ui/units/blacklist");
-const euiEvents = require("extended-ui/utils/event/events");
 
 let selectUnitDialog;
 let contentTable = null;
 let isBuilded = false;
 let showSettings = false;
-let schemSelection = false;
 let interactCore = Core.settings.getBool("eui-interact-core", false);
 let fillBuildings = Core.settings.getBool("eui-auto-fill", false);
 let selectedUnit = Core.settings.getString("eui-auto-unit");
-
-euiEvents.on(euiEvents.eventType.schemSelectionEnd, () => schemSelection = false);
 
 Events.run(Trigger.update, () => {
     if (!Core.settings.getBool("eui-showInteractSettings", true)) {
@@ -98,15 +94,6 @@ function buildTable() {
     buttonTable.button(iconsUtil.getByName(selectedUnit), Styles.cleari, () => {
         selectUnitDialog.show();
     }).tooltip(Core.bundle.get("interaction-settings.button.auto-unit.tooltip")).get().resizeImage(32*0.8);
-
-    if (!Vars.mobile) {
-        buttonTable.button(Icon.save, Styles.clearTogglei, () => {
-            schemSelection = !schemSelection;
-            euiEvents.emit(euiEvents.eventType.schemSelectionButtonPresed, schemSelection);
-        }).tooltip(Core.bundle.get("interaction-settings.button.schem-selection.tooltip")).update(b => {
-            b.setChecked(schemSelection);
-        }).get().resizeImage(32*0.8);
-    }
 }
 
 
